@@ -18,6 +18,8 @@ class User(Base):
 
     hashed_password: Mapped[str] = mapped_column(String(200),nullable=False)
 
+    refresh_tokens = Mapped[list['RefreshToken']] = relationship('RefreshToken',back_populates='user')
+
     __table_args__ = (
         PrimaryKeyConstraint('user_id',name='pk_users'),
         UniqueConstraint('username',name='uq_users_username'),
@@ -40,7 +42,10 @@ class RefreshToken(Base):
 
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True),nullable=False,default=lambda :datetime.now(timezone.utc))
 
+    user: Mapped['User'] = relationship('User',back_populates='refresh_tokens')
+
     __table_args__ = (
         PrimaryKeyConstraint('row_id',name='pk_refresh_tokens'),
         UniqueConstraint('jti',name='uq_refresh_tokens_jti')
     )
+    
