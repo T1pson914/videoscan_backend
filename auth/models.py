@@ -18,7 +18,7 @@ class User(Base):
 
     hashed_password: Mapped[str] = mapped_column(String(200),nullable=False)
 
-    refresh_tokens = Mapped[list['RefreshToken']] = relationship('RefreshToken',back_populates='user')
+    refresh_tokens: Mapped[list['RefreshToken']] = relationship('RefreshToken',back_populates='user')
 
     __table_args__ = (
         PrimaryKeyConstraint('user_id',name='pk_users'),
