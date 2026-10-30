@@ -12,3 +12,15 @@ class RegisterRequestSchema(BaseModel):
 class RegisterConfirmSchema(BaseModel):
     email: str
     code: str
+
+
+
+class LoginRequestShema(BaseModel):
+    email: str
+    password: str
+
+
+
+class LoginConfirmSchema(BaseModel):
+    email: str
+    code: str
