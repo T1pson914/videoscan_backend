@@ -1,5 +1,7 @@
+from uuid import UUID
+from datetime import datetime,timezone
 from sqlalchemy.orm import Mapped,mapped_column,relationship
-from sqlalchemy import Integer,String,ForeignKey,PrimaryKeyConstraint,UniqueConstraint
+from sqlalchemy import Integer,String,ForeignKey,PrimaryKeyConstraint,UniqueConstraint,Uuid,TIMESTAMP
 from data import Base
 
 
@@ -25,4 +27,20 @@ class User(Base):
 
 
 class RefreshToken(Base):
-    pass
+
+    __tablename__ = 'refresh_tokens'
+
+    row_id: Mapped[int] = mapped_column(Integer)
+
+    jti: Mapped[UUID] = mapped_column(Uuid(as_uuid=True),nullable=False)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id',ondelete="CASCADE"),nullable=False)
+
+    expired_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True),nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True),nullable=False,default=lambda :datetime.now(timezone.utc))
+
+    __table_args__ = (
+        PrimaryKeyConstraint('row_id',name='pk_refresh_tokens'),
+        UniqueConstraint('jti',name='uq_refresh_tokens_jti')
+    )
