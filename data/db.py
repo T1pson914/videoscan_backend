@@ -1,6 +1,6 @@
 import os
-from sqlalchemy.ext.asyncio import create_async_engine,async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import create_async_engine,async_sessionmaker,AsyncSession
+from typing import AsyncGenerator
 
 
 
@@ -16,6 +16,6 @@ engine = create_async_engine(
 session_local = async_sessionmaker(bind=engine,expire_on_commit=False)
 
 
-async def get_session():
+async def get_session() -> AsyncGenerator[AsyncSession,None]:
     async with session_local() as session:
         yield session
