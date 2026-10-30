@@ -48,4 +48,3 @@ class RefreshToken(Base):
         PrimaryKeyConstraint('row_id',name='pk_refresh_tokens'),
         UniqueConstraint('jti',name='uq_refresh_tokens_jti')
     )
-    
