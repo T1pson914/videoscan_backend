@@ -2,12 +2,12 @@ from typing import Annotated
 from uuid import UUID
 from fastapi import APIRouter,Depends,HTTPException,Body,Request,Response
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import load_only
+from sqlalchemy.orm import load_only,defer
 from sqlalchemy import select,update,delete
 from .shemas import RegisterRequestSchema,RegisterConfirmSchema,LoginRequestShema,LoginConfirmSchema
 from data.db import get_session
 from auth.models import User,RefreshToken
-from .tools import hash_password,verify_password,create_access_token,decode_refresh_token,create_token
+from .tools import hash_password,verify_password,create_access_token,decode_refresh_token,create_token,create_token_pair,RegisterManager,LoginManager
 
 router = APIRouter(
     prefix='/user',
@@ -35,6 +35,12 @@ async def create_user(
             errs['username'] = 'The user with this username is already exists.'
         raise HTTPException(status_code=400,detail=errs)
 
+    register_manager = RegisterManager(email)
+
+    await register_manager.send_code(data)
+
+    return {'message':'code was successfult sended'}
+
 
 
 @router.post('/register-confirm')
@@ -42,7 +48,20 @@ async def register_confirm(
     data: Annotated[RegisterConfirmSchema,Body()],
     session: Annotated[AsyncSession,Depends(get_session)]
 ):
-    pass
+    email = data.email
+    code = data.code
+
+    register_manager = RegisterManager(email)
+
+    user_data = await register_manager.verify_code(code)
+
+    user = User(**user_data)
+
+    session.add(user)
+
+    await session.commit()
+
+    return {'message':'the user successfult created. Now login.'}
 
 
 
@@ -55,22 +74,42 @@ async def login_user(
     password = data.password
     potential_user = session.scalar(select(User)
         .where(User.email==email)
-        .options(load_only(User.email,User.hashed_password))
+        .options(defer(User.username))
     )
     if not potential_user or not verify_password(password,potential_user.hashed_password):
         raise HTTPException(status_code=400,detail='Invalid email or password')
 
+    login_manager = LoginManager(email)
+
+    await login_manager.send_code(potential_user.user_id)
+
+    return {'message':'code was successfult sended'}
     
 
 
 @router.post('/login-confirm')
 async def login_confirm(
     data: Annotated[LoginConfirmSchema,Body()],
+    response: Response,
     session: Annotated[AsyncSession,Depends(get_session)]
-):
-    pass
+) -> dict[str,str]:
+    email = data.email
+    code = data.code
 
+    login_manager = LoginManager(email)
 
+    user_id = await login_manager.verify_code(code)
+
+    tokens = await create_token_pair(user_id,session)
+
+    refresh_token = tokens.pop('refresh_token')
+
+    response.set_cookie(
+        'refresh_token',
+        refresh_token,
+    )
+
+    return tokens # {'access_token':access_token}
 
 @router.post('/new-access')
 async def update_access_token(
