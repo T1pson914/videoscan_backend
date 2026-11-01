@@ -20,7 +20,7 @@ router = APIRouter(
 async def create_user(
     data: Annotated[RegisterRequestSchema,Body()],
     session: Annotated[AsyncSession,Depends(get_session)]
-):
+) -> dict[str,str]:
     email = data.email
     username = data.username
     potential_user = await session.scalar(select(User)
@@ -47,7 +47,7 @@ async def create_user(
 async def register_confirm(
     data: Annotated[RegisterConfirmSchema,Body()],
     session: Annotated[AsyncSession,Depends(get_session)]
-):
+) -> dict[str,str]:
     email = data.email
     code = data.code
 
@@ -71,7 +71,7 @@ async def register_confirm(
 async def login_user(
     data: Annotated[LoginRequestShema,Body()],
     session: Annotated[AsyncSession,Depends(get_session)]
-):
+) -> dict[str,str]:
     email = data.email
     password = data.password
     potential_user = await session.scalar(select(User)
@@ -116,6 +116,8 @@ async def login_confirm(
     )
 
     return tokens # {'access_token':access_token}
+
+
 
 @router.post('/new-access')
 async def update_access_token(
