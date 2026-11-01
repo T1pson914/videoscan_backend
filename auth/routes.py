@@ -166,7 +166,7 @@ async def rotate_refresh_token(
 
     response.set_cookie(
         'refresh_token',
-        new_refresh_token
+        new_refresh_token,
         max_age=3600*24*30,
         path='/user',
         httponly=True,
