@@ -1,6 +1,7 @@
 import os
 import jwt
 from datetime import datetime,timedelta,timezone
+from typing import Literal
 from uuid import uuid4,UUID
 from auth.models import RefreshToken
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +17,7 @@ JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
 
 
-def create_token(user_id: int, token_type: str) -> tuple[str,dict]:
+def create_token(user_id: int, token_type: Literal["refresh","access"]) -> tuple[str,dict]:
 
     exp = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
@@ -35,7 +36,7 @@ def create_token(user_id: int, token_type: str) -> tuple[str,dict]:
 
 
 def create_access_token(user_id: int) -> str:
-    access_token,_ = create_token(user_id,'access')
+    access_token, _ = create_token(user_id,'access')
     return access_token
 
 

@@ -52,8 +52,8 @@ class Manager:
                 port=465,
                 use_tls=True
             )
-        except aiosmtplib.SMTPException as e:
-            print(e.message)
+        except aiosmtplib.SMTPException:
+            return False
 
         return True
 
@@ -63,7 +63,7 @@ class RegisterManager(Manager):
 
 
 
-    def __init__(self, email):
+    def __init__(self, email) -> None:
         super().__init__(email=email, key=f'{REGISTER_CODE_KEY}:{email}')
 
 
@@ -109,12 +109,12 @@ class LoginManager(Manager):
 
 
 
-    def __init__(self, email):
+    def __init__(self, email) -> None:
         super().__init__(email=email, key=f'{LOGIN_CODE_KEY}:{email}')
 
 
 
-    async def send_code(self, user_id:int):
+    async def send_code(self, user_id:int) -> None:
 
         code = secrets.randbelow(900_000) + 100_000
 

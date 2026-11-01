@@ -24,10 +24,3 @@ class LoginRequestShema(BaseModel):
 class LoginConfirmSchema(BaseModel):
     email: str
     code: str
-
-
-
-class UserCreateSchema(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
