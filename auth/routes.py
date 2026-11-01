@@ -43,7 +43,7 @@ async def create_user(
 
 
 
-@router.post('/register-confirm')
+@router.post('/register-confirm',status_code=201)
 async def register_confirm(
     data: Annotated[RegisterConfirmSchema,Body()],
     session: Annotated[AsyncSession,Depends(get_session)]
@@ -53,9 +53,11 @@ async def register_confirm(
 
     register_manager = RegisterManager(email)
 
-    user_data = await register_manager.verify_code(code)
+    username,email,password = await register_manager.verify_code(code)
 
-    user = User(**user_data)
+    hashed_password = hash_password(password)
+
+    user = User(email=email,username=username,hashed_password=hashed_password)
 
     session.add(user)
 
@@ -72,7 +74,7 @@ async def login_user(
 ):
     email = data.email
     password = data.password
-    potential_user = session.scalar(select(User)
+    potential_user = await session.scalar(select(User)
         .where(User.email==email)
         .options(defer(User.username))
     )
@@ -107,6 +109,10 @@ async def login_confirm(
     response.set_cookie(
         'refresh_token',
         refresh_token,
+        max_age=3600*24*30,
+        path='/user',
+        httponly=True,
+        samesite='lax'
     )
 
     return tokens # {'access_token':access_token}
@@ -161,6 +167,10 @@ async def rotate_refresh_token(
     response.set_cookie(
         'refresh_token',
         new_refresh_token
+        max_age=3600*24*30,
+        path='/user',
+        httponly=True,
+        samesite='lax'
     )
 
     return {'message':'refresh token successfuly rotated'}

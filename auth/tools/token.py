@@ -9,8 +9,8 @@ from fastapi import HTTPException
 
 
 
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES')
-REFRESH_TOKEN_EXPIRE_DAYS = os.getenv('REFRESH_TOKEN_EXPIRE_DAYS')
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv('REFRESH_TOKEN_EXPIRE_DAYS'))
 JWT_ALGROTITHM = os.getenv('JWT_ALGROTITHM')
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
@@ -25,7 +25,7 @@ def create_token(user_id: int, token_type: str) -> tuple[str,dict]:
 
     payload = {
         'sub':str(user_id),
-        'jti':uuid4(),
+        'jti':str(uuid4()),
         'exp':exp,
         'token_type':token_type
     }

@@ -11,7 +11,7 @@ from auth.shemas import RegisterRequestSchema,UserCreateSchema
 LOGIN_CODE_KEY = 'login_data'
 REGISTER_CODE_KEY = 'register_data'
 EMAIL_USER = os.getenv('EMAIL_USER')
-EMAIL_PASSWORD = os.getenv('USER_EMAIL')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 
 
@@ -43,7 +43,8 @@ class Manager:
         message = self.build_message(subject,content)
 
         try:
-            aiosmtplib.send(
+            print(EMAIL_PASSWORD)
+            await aiosmtplib.send(
                 message,
                 hostname=EMAIL_HOST,
                 password=EMAIL_PASSWORD,
@@ -51,8 +52,8 @@ class Manager:
                 port=465,
                 use_tls=True
             )
-        except aiosmtplib.SMTPException:
-            return False
+        except aiosmtplib.SMTPException as e:
+            print(e.message)
 
         return True
 
@@ -69,7 +70,7 @@ class RegisterManager(Manager):
 
     async def send_code(self,data:RegisterRequestSchema) -> None:
 
-        code = secrets.randbelow(0,900_000) + 100_000
+        code = secrets.randbelow(900_000) + 100_000
 
         await self.send_message(
             subject='Confirm your registration on VideoScan.',
@@ -78,7 +79,7 @@ class RegisterManager(Manager):
 
         user_data = data.model_dump()
 
-        register_data = {'code':code,'tries':5,'user_data':user_data}
+        register_data = {'code':code,'tries':5,**user_data}
 
         await redis_conn.hset(self.key,mapping=register_data)
 
@@ -86,19 +87,21 @@ class RegisterManager(Manager):
 
 
 
-    async def verify_code(self, entered_code:int) -> UserCreateSchema:
+    async def verify_code(self, entered_code:int) -> dict[str,str]:
         register_data = await redis_conn.hgetall(self.key)
         code = register_data.get('code')
-        tries = register_data.get('tries')
+        tries = int(register_data.get('tries',0))
         if tries==0:
+            await redis_conn.delete(self.key)
             raise HTTPException(status_code=403,detail='Number of attempts exhausted')
         if entered_code!=code:
             tries -= 1
             await redis_conn.hset(self.key,'tries',tries)
             raise HTTPException(status_code=400,detail='Invalid code.')
         await redis_conn.delete(self.key)
-        user_data = register_data.get('user_data')
-        return UserCreateSchema(**user_data)
+        register_data.pop('code')
+        register_data.pop('tries')
+        return tuple(register_data.values())
 
 
 
@@ -113,7 +116,7 @@ class LoginManager(Manager):
 
     async def send_code(self, user_id:int):
 
-        code = secrets.randbelow(0,900_000) + 100_000
+        code = secrets.randbelow(900_000) + 100_000
 
         await self.send_message(
             subject='Confirm your registration on VideoScan.',
@@ -131,8 +134,9 @@ class LoginManager(Manager):
     async def verify_code(self, entered_code:int) -> int:
         login_data = await redis_conn.hgetall(self.key)
         code = login_data.get('code')
-        tries = login_data.get('tries')
+        tries = int(login_data.get('tries',0))
         if tries==0:
+            await redis_conn.delete(self.key)
             raise HTTPException(status_code=403,detail='Number of attempts exhausted')
         if entered_code!=code:
             tries -= 1
