@@ -4,7 +4,7 @@ import secrets
 from fastapi import HTTPException
 from email.message import EmailMessage
 from data.cache import redis_conn
-from auth.shemas import RegisterRequestSchema,UserCreateSchema
+from auth.shemas import RegisterRequestSchema
 
 
 
