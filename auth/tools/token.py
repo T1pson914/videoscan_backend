@@ -67,7 +67,7 @@ async def create_token_pair(user_id: int, session: AsyncSession) -> dict[str,str
 def decode_access_token(access_token: str) -> dict:
     credentials_error = HTTPException(status_code=400,detail='Couldnt validate access token.')
     try:
-        payload = jwt.decode(access_token,JWT_ALGROTITHM,algorithms=[JWT_ALGROTITHM])
+        payload = jwt.decode(access_token,JWT_SECRET_KEY,algorithms=[JWT_ALGROTITHM])
         jti = payload.get('jti')
         sub = payload.get('sub')
         token_type = payload.get('token_type')
@@ -84,7 +84,7 @@ def decode_access_token(access_token: str) -> dict:
 async def decode_refresh_token(refresh_token: str, session: AsyncSession) -> dict:
     credentials_error = HTTPException(status_code=400,detail='Couldnt validate refresh token.')
     try:
-        payload = jwt.decode(refresh_token,JWT_ALGROTITHM,algorithms=[JWT_ALGROTITHM])
+        payload = jwt.decode(refresh_token,JWT_SECRET_KEY,algorithms=[JWT_ALGROTITHM])
         jti = UUID(payload.get('jti'))
         sub = payload.get('sub')
         token_type = payload.get('token_type')

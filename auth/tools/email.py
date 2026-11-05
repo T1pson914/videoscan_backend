@@ -83,7 +83,7 @@ class RegisterManager(Manager):
 
         await redis_conn.hset(self.key,mapping=register_data)
 
-        await redis_conn.expire(self.key,120)
+        await redis_conn.expire(self.key,90)
 
 
 
@@ -119,7 +119,7 @@ class LoginManager(Manager):
         code = secrets.randbelow(900_000) + 100_000
 
         await self.send_message(
-            subject='Confirm your registration on VideoScan.',
+            subject='Confirm your login on VideoScan.',
             content=f'Your code to confirm: {code}'
         )        
 
@@ -127,7 +127,7 @@ class LoginManager(Manager):
 
         await redis_conn.hset(self.key,mapping=login_data)
 
-        await redis_conn.expire(self.key,120)
+        await redis_conn.expire(self.key,90)
 
 
 

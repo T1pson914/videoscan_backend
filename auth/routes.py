@@ -51,6 +51,8 @@ async def register_confirm(
     email = data.email
     code = data.code
 
+
+
     register_manager = RegisterManager(email)
 
     username,email,password = await register_manager.verify_code(code)
