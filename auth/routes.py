@@ -184,6 +184,7 @@ async def rotate_refresh_token(
 @router.post('/logout')
 async def logout(
     request: Request,
+    response: Response,
     session: Annotated[AsyncSession,Depends(get_session)]
 ) -> dict[str,str]:
 
@@ -200,6 +201,8 @@ async def logout(
 
     await session.commit()
 
+    response.delete_cookie('refresh_token',path='/user',httponly=True)
+
     return {'message':'logout was successfult done'}
 
 
@@ -207,6 +210,7 @@ async def logout(
 @router.post('/logout-all')
 async def logout_all(
     request: Request,
+    response: Response,
     session: Annotated[AsyncSession,Depends(get_session)]
 ) -> dict[str,str]:
 
@@ -222,5 +226,7 @@ async def logout_all(
     await session.execute(delete(RefreshToken).where(RefreshToken.user_id==user_id))
 
     await session.commit()
+
+    response.delete_cookie('refresh_token',path='/user',httponly=True)
 
     return {'message':'logout was successfult done'}
