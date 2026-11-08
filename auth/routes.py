@@ -5,9 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import load_only,defer
 from sqlalchemy import select,update,delete
 from .shemas import RegisterRequestSchema,RegisterConfirmSchema,LoginRequestShema,LoginConfirmSchema
-from data.db import get_session
+from core.db import get_session
 from auth.models import User,RefreshToken
 from .tools import hash_password,verify_password,create_access_token,decode_refresh_token,create_token,create_token_pair,RegisterManager,LoginManager
+
+
 
 router = APIRouter(
     prefix='/user',
@@ -201,7 +203,7 @@ async def logout(
 
     await session.commit()
 
-    response.delete_cookie('refresh_token',path='/user',httponly=True)
+    response.delete_cookie('refresh_token',path='/user',httponly=True,samesite='lax')
 
     return {'message':'logout was successfult done'}
 
@@ -227,6 +229,6 @@ async def logout_all(
 
     await session.commit()
 
-    response.delete_cookie('refresh_token',path='/user',httponly=True)
+    response.delete_cookie('refresh_token',path='/user',httponly=True,samesite='lax')
 
     return {'message':'logout was successfult done'}

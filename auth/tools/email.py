@@ -3,7 +3,7 @@ import os
 import secrets
 from fastapi import HTTPException
 from email.message import EmailMessage
-from data.cache import redis_conn
+from core.cache import redis_conn
 from auth.shemas import RegisterRequestSchema
 
 
@@ -70,6 +70,10 @@ class RegisterManager(Manager):
 
     async def send_code(self,data:RegisterRequestSchema) -> None:
 
+        register_data = await redis_conn.hgetall(self.key)
+        if register_data:
+            return
+        
         code = secrets.randbelow(900_000) + 100_000
 
         await self.send_message(
@@ -116,6 +120,10 @@ class LoginManager(Manager):
 
     async def send_code(self, user_id:int) -> None:
 
+        login_data = await redis_conn.hgetall(self.key)
+        if login_data:
+            return
+        
         code = secrets.randbelow(900_000) + 100_000
 
         await self.send_message(

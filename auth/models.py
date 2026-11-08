@@ -2,7 +2,7 @@ from uuid import UUID
 from datetime import datetime,timezone
 from sqlalchemy.orm import Mapped,mapped_column,relationship
 from sqlalchemy import Integer,String,ForeignKey,PrimaryKeyConstraint,UniqueConstraint,Uuid,TIMESTAMP
-from data.base import Base
+from core.base import Base
 
 
 
