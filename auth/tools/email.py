@@ -1,18 +1,17 @@
 import aiosmtplib
-import os
 import secrets
 from fastapi import HTTPException
 from email.message import EmailMessage
 from core.cache import redis_conn
 from auth.shemas import RegisterRequestSchema
-
+from config import settings
 
 
 LOGIN_CODE_KEY = 'login_data'
 REGISTER_CODE_KEY = 'register_data'
-EMAIL_USER = os.getenv('EMAIL_USER')
-EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
-EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_USER = settings.email_user
+EMAIL_PASSWORD = settings.email_password
+EMAIL_HOST = settings.email_host
 
 
 

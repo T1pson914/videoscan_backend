@@ -1,4 +1,3 @@
-import os
 import jwt
 from datetime import datetime,timedelta,timezone
 from typing import Literal
@@ -7,13 +6,13 @@ from auth.models import RefreshToken
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import delete
 from fastapi import HTTPException
+from config import settings
 
 
-
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))
-REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv('REFRESH_TOKEN_EXPIRE_DAYS'))
-JWT_ALGROTITHM = os.getenv('JWT_ALGROTITHM')
-JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expires_minutes
+REFRESH_TOKEN_EXPIRE_DAYS = settings.refresh_token_expires_days
+JWT_ALGROTITHM = settings.jwt_algorithm
+JWT_SECRET_KEY = settings.jwt_secret_key
 
 
 
