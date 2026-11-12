@@ -4,19 +4,19 @@ from pydantic_settings import BaseSettings,SettingsConfigDict
 
 class Settings(BaseSettings):
 
-    database_url: str
-    alembic_url: str
+    database_url: str = ''
+    alembic_url: str = ''
 
 
-    access_token_expires_minutes: int
-    refresh_token_expires_days: int
-    jwt_algorithm: str
-    jwt_secret_key: str
+    access_token_expire_minutes: int = 0
+    refresh_token_expire_days: int = 0
+    jwt_alg: str = ''
+    jwt_secret_key: str = ''
 
 
-    email_host: str
-    email_user: str
-    email_password: str
+    email_host: str = ''
+    email_user: str = ''
+    email_password: str = ''
 
 
     model_config = SettingsConfigDict(
